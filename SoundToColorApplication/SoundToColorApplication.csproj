@@ -76,6 +76,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="FrequencyAnalyzer.cs" />
+    <Compile Include="ISound2ColorMapping.cs" />
     <Compile Include="IValueHolderReadOnly.cs" />
     <Compile Include="SoundManager.cs" />
     <Compile Include="SoundVisualizerControl.xaml.cs">

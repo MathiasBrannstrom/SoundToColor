@@ -27,12 +27,33 @@ namespace SoundToColorApplication
 
         public List<Path> Paths { get; private set; }
 
+        public List<Path> ColorMappingPaths { get; private set; }
+
+        private List<ISound2ColorMapping> _sound2ColorMappings;
+
         public SoundVisualizerVM(IValueHolderReadOnly<short[]> amps, IValueHolderReadOnly<int> samplingRate)
         {
             _color = new ValueHolder<Color>();
             _samplingRate = samplingRate;
             Frequencies = new ValueHolder<double[]>();
             Amplitudes = amps;
+
+            _sound2ColorMappings = new List<ISound2ColorMapping>{ 
+                new LinearSound2ColorMapping{
+                    Color = System.Windows.Media.Color.FromRgb(0,0,255),
+                    IntensityMultiplier = 1,
+                    SoundFrequencyMidpoint = 280,
+                    SoundFrequencySpanWidth = 300},
+                new LinearSound2ColorMapping{
+                    Color = System.Windows.Media.Color.FromRgb(0,255,0),
+                    IntensityMultiplier = 0.9,
+                    SoundFrequencyMidpoint = 600,
+                    SoundFrequencySpanWidth = 500},
+                new LinearSound2ColorMapping{
+                    Color = System.Windows.Media.Color.FromRgb(255,0,0),
+                    IntensityMultiplier = 0.8,
+                    SoundFrequencyMidpoint = 1600,
+                    SoundFrequencySpanWidth = 1000}};
 
             Amplitudes.PropertyChanged += HandleAmplitudesChanged;
             _samplingRate.PropertyChanged += HandleSamplingRateChanged;
@@ -48,6 +69,34 @@ namespace SoundToColorApplication
             Update();
         }
 
+        public void UpdateSound2ColorMappingLines()
+        {
+            ColorMappingPaths = new List<Path>();
+            foreach (var mapping in _sound2ColorMappings)
+            {
+                var pathSegments = new List<PathSegment>();
+
+                var firstPoint = new Point();
+                for (int x = 0; x < 200; x++)
+                {
+                    var freq = x * 20;
+                    var point = new Point(Frequency2Pixel(freq), mapping.GetIntensityFromSoundFrequency(freq)*50 + translation * 2);
+
+                    if (x == 0)
+                    {
+                        firstPoint = point;
+                    }
+                    else
+                    {
+                        pathSegments.Add(new LineSegment(point,true));
+                    }
+                }
+                PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoint, pathSegments, false) });
+
+                ColorMappingPaths.Add(new Path() { Data = pg, Stroke = new SolidColorBrush(mapping.Color), StrokeThickness = 2 });
+            }
+        }
+
         private void Update()
         {
             var amps = Amplitudes.Value;
@@ -59,16 +108,10 @@ namespace SoundToColorApplication
 
             List<PathSegment> ampList = new List<PathSegment>();
             List<PathSegment> freqList = new List<PathSegment>();
-            List<PathSegment> listBlue = new List<PathSegment>();
-            List<PathSegment> listGreen = new List<PathSegment>();
-            List<PathSegment> listRed = new List<PathSegment>();
 
             Point firstPointAmp = new Point();
             Point firstPointFreq = new Point();
 
-            Point firstPointBlue = new Point();
-            Point firstPointGreen = new Point();
-            Point firstPointRed = new Point();
 
             var red = 0.0;
             var green = 0.0;
@@ -88,18 +131,12 @@ namespace SoundToColorApplication
                 }
 
                 var ampPoint = new Point(4 * x, y[x] * factor + translation);
-                var freqPoint = new Point(8 * x, -y2[x] * factor + translation * 2);
-                var bluePoint = new Point(8 * x, b * 50 + translation * 2);
-                var greenPoint = new Point(8 * x, g * 50 + translation * 2);
-                var redPoint = new Point(8 * x, r * 50 + translation * 2);
+                var freqPoint = new Point(Frequency2Pixel(idx2Freq[x]), -y2[x] * factor + translation * 2);
 
                 if (x == 0)
                 {
                     firstPointAmp = ampPoint;
                     firstPointFreq = freqPoint;
-                    firstPointBlue = bluePoint;
-                    firstPointGreen = greenPoint;
-                    firstPointRed = redPoint;
                 }
                 else
                 {
@@ -108,9 +145,6 @@ namespace SoundToColorApplication
                     if (x <= y.Length / 2)
                     {
                         freqList.Add(new LineSegment(freqPoint, true));
-                        listBlue.Add(new LineSegment(bluePoint, true));
-                        listGreen.Add(new LineSegment(greenPoint, true));
-                        listRed.Add(new LineSegment(redPoint, true));
                     }
                 }
             }
@@ -125,9 +159,9 @@ namespace SoundToColorApplication
 
             _oldColor = _color.Value;
 
-            var firstPoints = new[] { firstPointAmp, firstPointFreq, firstPointBlue, firstPointGreen, firstPointRed };
-            var segmentLists = new[] { ampList, freqList, listBlue, listGreen, listRed };
-            var color = new[] { Brushes.Black, Brushes.Black, Brushes.Blue, Brushes.Green, Brushes.Red };
+            var firstPoints = new[] { firstPointAmp, firstPointFreq};
+            var segmentLists = new[] { ampList, freqList };
+            var color = new[] { Brushes.Black, Brushes.Black};
 
             var paths = new List<Path>();
 
@@ -138,6 +172,11 @@ namespace SoundToColorApplication
             }
 
             Paths = paths;
+        }
+
+        private double Frequency2Pixel(double freq)
+        {
+            return freq / 2;
         }
 
         private double Blue(double freq)

@@ -31,6 +31,7 @@ namespace SoundToColorApplication
             _soundVisualizerVM = new SoundVisualizerVM(_amplitudes, _samplingRate);
             
             _soundVisualizer = new SoundVisualizerControl();
+            _soundVisualizerVM.UpdateSound2ColorMappingLines();
             MainGrid.Children.Add(_soundVisualizer);
         }
         
@@ -42,6 +43,11 @@ namespace SoundToColorApplication
             _soundVisualizer.MainGrid.Children.Clear();
             //This code should be replaced soon.
             foreach (var path in _soundVisualizerVM.Paths)
+            {
+                _soundVisualizer.MainGrid.Children.Add(path);
+            }
+
+            foreach (var path in _soundVisualizerVM.ColorMappingPaths)
             {
                 _soundVisualizer.MainGrid.Children.Add(path);
             }
