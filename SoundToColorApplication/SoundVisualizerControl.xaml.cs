@@ -31,7 +31,20 @@ namespace SoundToColorApplication
             _viewModel.Frequencies.PropertyChanged += HandleFrequenciesChanged;
             _viewModel.Amplitudes.PropertyChanged += HandleAmplitudesChanged;
             _viewModel.Color.PropertyChanged += HandleColorChanged;
+            _viewModel.AverageIntensity.PropertyChanged += HandleAverageIntensityChanged;
 
+        }
+
+        private void HandleAverageIntensityChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            var y = AverageAmplitude.ActualHeight - (_viewModel.AverageIntensity.Value-_viewModel.MinIntensity)/(_viewModel.MaxIntensity-_viewModel.MinIntensity)*AverageAmplitude.ActualHeight;
+            var firstPoint = new Point(0, y);
+            var pathSegments = new List<PathSegment> { new LineSegment(new Point(AverageAmplitude.ActualWidth, y), true) };
+
+
+            PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoint, pathSegments, false) });
+
+            AverageAmplitude.Child = new Path() { Data = pg, Stroke = Brushes.White, StrokeThickness = 2, VerticalAlignment = VerticalAlignment.Center };
         }
 
         private void HandleColorChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -66,7 +79,7 @@ namespace SoundToColorApplication
             var firstPoint = new Point();
             foreach(var kvp in _viewModel.Frequencies.Value) 
             {
-                var point = new Point(Frequency2Pixel(kvp.Key), -kvp.Value*0.005);
+                var point = new Point(Frequency2Pixel(kvp.Key), -kvp.Value*0.02);
 
                 if (firstPoint == null)
                     firstPoint = point;

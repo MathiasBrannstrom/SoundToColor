@@ -8,12 +8,13 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
-        <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#10FFFFFF"/>
-        <Grid Grid.Row="1" Margin="20" Background="#10FFFFFF">
+        <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#08FFFFFF"/>
+        <Grid Grid.Row="1" Margin="20" Background="#08FFFFFF">
             <Border x:Name="FrequencyCurve" Background="Transparent"/>
             <Grid x:Name="ColorMappings" Background="Transparent"/>
+            <Border x:Name="AverageAmplitude" Background="Transparent"/>
         </Grid>
 
     </Grid>

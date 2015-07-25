@@ -25,7 +25,11 @@ namespace SoundToColorApplication
 
         public List<ISound2ColorMapping> Sound2ColorMappings { get; set; }
 
-        private const double IntensityLimit = 350000;
+        public IValueHolderReadOnly<double> AverageIntensity { get { return _averageIntensity; } }
+        private IValueHolder<double> _averageIntensity;
+
+        public double MinIntensity = 200000;
+        public double MaxIntensity = 200000000;
         private const double ColorChangingSpeed = 0.1;
 
         public SoundVisualizerVM(IValueHolderReadOnly<short[]> samples, IValueHolderReadOnly<int> samplingRate)
@@ -35,6 +39,7 @@ namespace SoundToColorApplication
             _samples = samples;
             _frequencies = new ValueHolder<IReadOnlyList<KeyValuePair<Frequency, double>>>();
             _amplitudes = new ValueHolder<IReadOnlyList<KeyValuePair<int, double>>>();
+            _averageIntensity = new ValueHolder<double>();
 
             Sound2ColorMappings = new List<ISound2ColorMapping>{ 
                 new LinearSound2ColorMapping{
@@ -110,6 +115,9 @@ namespace SoundToColorApplication
             var bluePart = totalIntensity == 0 ? 0 : blueIntensity / totalIntensity;
             var greenPart = totalIntensity == 0 ? 0 : greenIntensity / totalIntensity;
 
+            var newAverageIntensity = _averageIntensity.Value * (1 - ColorChangingSpeed) + totalIntensity * ColorChangingSpeed;
+            _averageIntensity.Value = Math.Min(Math.Max(newAverageIntensity, MinIntensity), MaxIntensity);
+
             Func<double, double> intensify = (d) =>
             {
                 if (d >= 1.0 / 3)
@@ -123,31 +131,37 @@ namespace SoundToColorApplication
                 return d;
             };
 
+
+            var scaling = totalIntensity / _averageIntensity.Value;
+
+            redPart = Math.Min(Math.Max(redPart * scaling, 0), 1);
+            bluePart = Math.Min(Math.Max(bluePart * scaling, 0), 1);
+            greenPart = Math.Min(Math.Max(greenPart * scaling, 0), 1);
+
+
             redPart = intensify(redPart);
             bluePart = intensify(bluePart);
             greenPart = intensify(greenPart);
 
-            var normalizingFactor = redPart + bluePart + greenPart;
+            //Consider intensifying after capping off at 255 after scaling to allow for white colors
+            //when reaching max intensity (could be nice when introducing adapting intensity level)
+
+            var normalizingFactor = (redPart + bluePart + greenPart) / scaling;
 
             redPart /= normalizingFactor;
             bluePart /= normalizingFactor;
             greenPart /= normalizingFactor;
 
-
-
-            var scaling = totalIntensity / IntensityLimit;
-
-            var red = redPart * scaling;
-            var blue = bluePart * scaling;
-            var green = greenPart * scaling;
-
-                if (_color.Value == null)
-                    _color.Value = System.Windows.Media.Color.FromRgb((byte)Math.Min(255, red), (byte)Math.Min(255, green), (byte)Math.Min(255, blue));
-                else
-                    _color.Value = System.Windows.Media.Color.FromRgb(
-                        (byte)(Math.Min(255, red) * ColorChangingSpeed + _color.Value.R * (1-ColorChangingSpeed)),
-                        (byte)(Math.Min(255, green) * ColorChangingSpeed + _color.Value.G * (1-ColorChangingSpeed)),
-                        (byte)(Math.Min(255, blue) * ColorChangingSpeed + _color.Value.B * (1-ColorChangingSpeed)));
+            if (_color.Value == null)
+                _color.Value = System.Windows.Media.Color.FromRgb(
+                    (byte)(255 * redPart),
+                    (byte)(255 * greenPart),
+                    (byte)(255 * bluePart));
+            else
+                _color.Value = System.Windows.Media.Color.FromRgb(
+                    (byte)((255 * redPart) * ColorChangingSpeed + _color.Value.R * (1 - ColorChangingSpeed)),
+                    (byte)((255 * greenPart) * ColorChangingSpeed + _color.Value.G * (1 - ColorChangingSpeed)),
+                    (byte)((255 * bluePart) * ColorChangingSpeed + _color.Value.B * (1 - ColorChangingSpeed)));
 
             _amplitudes.Value = amplitudes; 
             _frequencies.Value = frequencies;
