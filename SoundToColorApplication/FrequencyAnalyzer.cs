@@ -16,7 +16,7 @@ namespace SoundToColorApplication
             idx2Frequency = Fourier.FrequencyScale(amplitudes.Length, samplingRate);
 
             var fft = amplitudes.Select(a => new Complex(a, 0)).ToArray();
- 
+            Fourier.Forward(fft);
             frequencyAmplitudes = fft.Select(c => Math.Abs(c.Real)).ToArray();
         }
     }
