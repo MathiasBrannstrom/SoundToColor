@@ -12,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using NAudio.Wave;
 using System.Timers;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -26,53 +25,26 @@ namespace SoundToColorApplication
     /// </summary>
     public partial class MainWindow : Window
     {
-        private WaveIn _recorder;
-        private BufferedWaveProvider _bufferedWaveProvider;
-        private WaveOut _player;
-
-        private int _samplingRate;
-
-        private int _bytesPerSample;
-
-        bool playBack = false;
+        private const double factor = 100.0 / Int16.MaxValue;
+        private const double translation = 300;
+        private Color _oldColor;
+        private SoundManager _soundManager;
 
         public MainWindow()
         {
             InitializeComponent();
-
-
-            _recorder = new WaveIn();
-            _recorder.BufferMilliseconds = 50;
-            _recorder.DataAvailable += HandleDataAvailable;
-            _bufferedWaveProvider = new BufferedWaveProvider(_recorder.WaveFormat);
-
-            _samplingRate = _recorder.WaveFormat.SampleRate;
-
-            _bytesPerSample = _recorder.WaveFormat.BitsPerSample / 8;
-
-            if (playBack)
-            {
-                _player = new WaveOut();
-                _player.Init(_bufferedWaveProvider);
-                _player.Play();
-            }
-            _recorder.StartRecording();
-
+            _soundManager = new SoundManager();
+            _soundManager.NewSamples += HandleNewSamples;
+            _soundManager.StartRecording();
         }
-
-        private const double factor = 100.0 / Int16.MaxValue;
-        private const double translation = 300;
-        private Color _oldColor;
-        private void HandleDataAvailable(object sender, WaveInEventArgs e)
+        
+        private void HandleNewSamples(short[] newSamples)
         {
-            short[] amps = new short[e.BytesRecorded/_bytesPerSample];
-
-            for (int i = 0; i < e.BytesRecorded; i += _bytesPerSample)
-                amps[i/_bytesPerSample] = BitConverter.ToInt16(e.Buffer, i);
+            var amps = newSamples;
 
             double[] y2, idx2Freq;
 
-            FrequencyAnalyzer.Analyze(amps, _samplingRate, out y2, out idx2Freq);
+            FrequencyAnalyzer.Analyze(amps, _soundManager.SamplingRate, out y2, out idx2Freq);
             var y = amps;
 
             grid.Children.Clear();
@@ -81,7 +53,6 @@ namespace SoundToColorApplication
             List<PathSegment> listBlue = new List<PathSegment>();
             List<PathSegment> listGreen = new List<PathSegment>();
             List<PathSegment> listRed = new List<PathSegment>();
-
             
             Point firstPointAmp = new Point();
             Point firstPointFreq = new Point();
@@ -158,13 +129,7 @@ namespace SoundToColorApplication
                 var pathMarker = new System.Windows.Shapes.Path() { Data = pg, Stroke = color[i], StrokeThickness = 2 };
                 grid.Children.Add(pathMarker);
             }
-
-            if (playBack)
-            {
-                _bufferedWaveProvider.AddSamples(e.Buffer, 0, e.BytesRecorded);
-            }
         }
-
 
         private double Blue(double freq)
         {
@@ -172,7 +137,6 @@ namespace SoundToColorApplication
             return val*1.0;
         }
 
-    
         private double Green(double freq)
         {
             var val = Math.Max(1 - Math.Abs((freq - 600) / 500), 0);
