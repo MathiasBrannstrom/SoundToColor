@@ -106,9 +106,34 @@ namespace SoundToColorApplication
             }
 
             var totalIntensity = redIntensity + blueIntensity + greenIntensity;
-            var redPart = redIntensity / totalIntensity;
-            var bluePart = blueIntensity / totalIntensity;
-            var greenPart = greenIntensity / totalIntensity;
+            var redPart = totalIntensity == 0 ? 0 : redIntensity / totalIntensity;
+            var bluePart = totalIntensity == 0 ? 0 : blueIntensity / totalIntensity;
+            var greenPart = totalIntensity == 0 ? 0 : greenIntensity / totalIntensity;
+
+            Func<double, double> intensify = (d) =>
+            {
+                if (d >= 1.0 / 3)
+                {
+                    d = Math.Sqrt((d - 1.0 / 3) * 3.0 / 2) * 2.0 / 3 + 1.0 / 3;
+                }
+                else
+                {
+                    d = -Math.Sqrt(Math.Abs(d - 1.0 / 3 ) * 3.0) * 1.0 / 3 + 1.0 / 3;
+                }
+                return d;
+            };
+
+            redPart = intensify(redPart);
+            bluePart = intensify(bluePart);
+            greenPart = intensify(greenPart);
+
+            var normalizingFactor = redPart + bluePart + greenPart;
+
+            redPart /= normalizingFactor;
+            bluePart /= normalizingFactor;
+            greenPart /= normalizingFactor;
+
+
 
             var scaling = totalIntensity / IntensityLimit;
 

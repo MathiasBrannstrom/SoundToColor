@@ -10,8 +10,8 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#20FFFFFF"/>
-        <Grid Grid.Row="1" Margin="20" Background="#20FFFFFF">
+        <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#10FFFFFF"/>
+        <Grid Grid.Row="1" Margin="20" Background="#10FFFFFF">
             <Border x:Name="FrequencyCurve" Background="Transparent"/>
             <Grid x:Name="ColorMappings" Background="Transparent"/>
         </Grid>
