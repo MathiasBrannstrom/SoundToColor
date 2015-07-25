@@ -1,0 +1,15 @@
+﻿<Window x:Class="SoundToColorApplication.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525" WindowState="Maximized"
+        x:Name="ThisControl">
+    <Grid>
+        <Grid x:Name="grid">
+            <!--<Grid.RenderTransform>
+                <ScaleTransform ScaleX="{Binding ActualWidth, ElementName=ThisControl}" CenterX="0"/>
+            </Grid.RenderTransform>-->
+        </Grid>
+
+        <StackPanel x:Name="freqStackPanel" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Vertical"/>
+    </Grid>
+</Window>
