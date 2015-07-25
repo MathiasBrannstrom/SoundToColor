@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
-
+using Utilities;
 namespace SoundToColorApplication
 {
     /// <summary>
@@ -11,25 +11,39 @@ namespace SoundToColorApplication
     public partial class MainWindow : Window
     {
         private SoundManager _soundManager;
-        private SoundToColorVM _soundToColorVM;
+        private SoundVisualizerVM _soundVisualizerVM;
+        private SoundVisualizerControl _soundVisualizer;
+        private IValueHolder<short[]> _amplitudes;
+        private IValueHolder<int> _samplingRate;
         public MainWindow()
         {
             InitializeComponent();
+
+            _amplitudes = new ValueHolder<short[]>();
+            _samplingRate = new ValueHolder<int>();
+
             _soundManager = new SoundManager();
             _soundManager.NewSamples += HandleNewSamples;
             _soundManager.StartRecording();
-            _soundToColorVM = new SoundToColorVM();
+
+            _samplingRate.Value = _soundManager.SamplingRate;
+
+            _soundVisualizerVM = new SoundVisualizerVM(_amplitudes, _samplingRate);
+            
+            _soundVisualizer = new SoundVisualizerControl();
+            MainGrid.Children.Add(_soundVisualizer);
         }
         
         private void HandleNewSamples(short[] newSamples)
         {
-            grid.Children.Clear();
-  
-            _soundToColorVM.NewSamples(newSamples, _soundManager.SamplingRate);
-            grid.Background = new SolidColorBrush(_soundToColorVM.ConvertedColor);
-            foreach (var path in _soundToColorVM.Paths)
+            _amplitudes.Value = newSamples;
+            _soundVisualizer.Background = new SolidColorBrush(_soundVisualizerVM.Color.Value);
+
+            _soundVisualizer.MainGrid.Children.Clear();
+            //This code should be replaced soon.
+            foreach (var path in _soundVisualizerVM.Paths)
             {
-                grid.Children.Add(path);
+                _soundVisualizer.MainGrid.Children.Add(path);
             }
         }
     }

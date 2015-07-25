@@ -1,34 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Utilities;
 
 namespace SoundToColorApplication
 {
-    /// <summary>
-    /// Currently holds some UI logic as well, should be moved.
-    /// </summary>
-    class SoundToColorVM
+    class SoundVisualizerVM
     {
         private const double factor = 100.0 / Int16.MaxValue;
         private const double translation = 300;
         private Color _oldColor;
+        private IValueHolderReadOnly<int> _samplingRate;
+        private ValueHolder<Color> _color;
 
-        public Color ConvertedColor { get; private set; }
+        public IValueHolderReadOnly<Color> Color { get { return _color; } }
+
+        public IValueHolderReadOnly<short[]> Amplitudes { get; private set; }
+
+        public IValueHolderReadOnly<double[]> Frequencies { get; private set; }
 
         public List<Path> Paths { get; private set; }
 
-        public void NewSamples(short[] samples, int samplingRate)
+        public SoundVisualizerVM(IValueHolderReadOnly<short[]> amps, IValueHolderReadOnly<int> samplingRate)
         {
-            var amps = samples;
+            _color = new ValueHolder<Color>();
+            _samplingRate = samplingRate;
+            Frequencies = new ValueHolder<double[]>();
+            Amplitudes = amps;
+
+            Amplitudes.PropertyChanged += HandleAmplitudesChanged;
+            _samplingRate.PropertyChanged += HandleSamplingRateChanged;
+        }
+
+        private void HandleSamplingRateChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Update();
+        }
+
+        private void HandleAmplitudesChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Update();
+        }
+
+        private void Update()
+        {
+            var amps = Amplitudes.Value;
 
             double[] y2, idx2Freq;
 
-            FrequencyAnalyzer.Analyze(amps, samplingRate, out y2, out idx2Freq);
+            FrequencyAnalyzer.Analyze(amps, _samplingRate.Value, out y2, out idx2Freq);
             var y = amps;
 
             List<PathSegment> ampList = new List<PathSegment>();
@@ -90,15 +116,14 @@ namespace SoundToColorApplication
             }
 
             if (_oldColor == null)
-                ConvertedColor = Color.FromRgb((byte)Math.Min(255, red), (byte)Math.Min(255, green), (byte)Math.Min(255, blue));
+                _color.Value = System.Windows.Media.Color.FromRgb((byte)Math.Min(255, red), (byte)Math.Min(255, green), (byte)Math.Min(255, blue));
             else
-                ConvertedColor = Color.FromRgb(
+                _color.Value = System.Windows.Media.Color.FromRgb(
                     (byte)(Math.Min(255, red) * 0.1 + _oldColor.R * 0.9),
                     (byte)(Math.Min(255, green) * 0.1 + _oldColor.G * 0.9),
                     (byte)(Math.Min(255, blue) * 0.1 + _oldColor.B * 0.9));
 
-           _oldColor = ConvertedColor;
-
+            _oldColor = _color.Value;
 
             var firstPoints = new[] { firstPointAmp, firstPointFreq, firstPointBlue, firstPointGreen, firstPointRed };
             var segmentLists = new[] { ampList, freqList, listBlue, listGreen, listRed };
@@ -111,6 +136,7 @@ namespace SoundToColorApplication
                 PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoints[i], segmentLists[i], false) });
                 paths.Add(new Path() { Data = pg, Stroke = color[i], StrokeThickness = 2 });
             }
+
             Paths = paths;
         }
 
