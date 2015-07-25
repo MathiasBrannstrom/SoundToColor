@@ -70,13 +70,10 @@ namespace SoundToColorApplication
             for (int i = 0; i < e.BytesRecorded; i += _bytesPerSample)
                 amps[i/_bytesPerSample] = BitConverter.ToInt16(e.Buffer, i);
 
-            var idx2Freq = Fourier.FrequencyScale(amps.Length, _samplingRate);
+            double[] y2, idx2Freq;
 
-            var fft = amps.Select(a => new Complex(a, 0)).ToArray();
-            Fourier.Forward(fft);
-
+            FrequencyAnalyzer.Analyze(amps, _samplingRate, out y2, out idx2Freq);
             var y = amps;
-            var y2 = fft.Select(c => Math.Abs(c.Real)).ToArray();
 
             grid.Children.Clear();
             List<PathSegment> ampList = new List<PathSegment>();
