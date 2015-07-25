@@ -4,18 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vms="clr-namespace:SoundToColorApplication"
-             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance {x:Type vms:SoundToColorVM}}">
-    <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <!--<Grid.Background>
-            <SolidColorBrush Color="{Binding DataContext.ConvertedColor}" />
-        </Grid.Background>-->
-        <!--<Grid.RowDefinitions>
+             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Border x:Name="AmplitudeBorder" Grid.Row="0"/>
-        <Border x:Name="FrequencyBorder" Grid.Row="1"/>-->
+        <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#20FFFFFF"/>
+        <Grid Grid.Row="1" Margin="20" Background="#20FFFFFF">
+            <Border x:Name="FrequencyCurve" Background="Transparent"/>
+            <Grid x:Name="ColorMappings" Background="Transparent"/>
+        </Grid>
 
     </Grid>
 </UserControl>

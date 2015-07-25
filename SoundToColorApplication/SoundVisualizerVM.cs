@@ -3,59 +3,57 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Utilities;
 
 namespace SoundToColorApplication
 {
-    class SoundVisualizerVM
+    public class SoundVisualizerVM
     {
         private const double factor = 100.0 / Int16.MaxValue;
         private const double translation = 300;
         private Color _oldColor;
         private IValueHolderReadOnly<int> _samplingRate;
+        private IValueHolderReadOnly<short[]> _samples;
         private ValueHolder<Color> _color;
 
         public IValueHolderReadOnly<Color> Color { get { return _color; } }
 
-        public IValueHolderReadOnly<short[]> Amplitudes { get; private set; }
+        public IValueHolderReadOnly<IReadOnlyList<KeyValuePair<Frequency, double>>> Frequencies { get { return _frequencies; } }
+        private IValueHolder<IReadOnlyList<KeyValuePair<Frequency, double>>> _frequencies;
 
-        public IValueHolderReadOnly<double[]> Frequencies { get; private set; }
+        public IValueHolderReadOnly<IReadOnlyList<KeyValuePair<int, double>>> Amplitudes { get { return _amplitudes; } }
+        private IValueHolder<IReadOnlyList<KeyValuePair<int, double>>> _amplitudes;
 
-        public List<Path> Paths { get; private set; }
+        public List<ISound2ColorMapping> Sound2ColorMappings { get; set; }
 
-        public List<Path> ColorMappingPaths { get; private set; }
-
-        private List<ISound2ColorMapping> _sound2ColorMappings;
-
-        public SoundVisualizerVM(IValueHolderReadOnly<short[]> amps, IValueHolderReadOnly<int> samplingRate)
+        public SoundVisualizerVM(IValueHolderReadOnly<short[]> samples, IValueHolderReadOnly<int> samplingRate)
         {
             _color = new ValueHolder<Color>();
             _samplingRate = samplingRate;
-            Frequencies = new ValueHolder<double[]>();
-            Amplitudes = amps;
+            _samples = samples;
+            _frequencies = new ValueHolder<IReadOnlyList<KeyValuePair<Frequency, double>>>();
+            _amplitudes = new ValueHolder<IReadOnlyList<KeyValuePair<int, double>>>();
 
-            _sound2ColorMappings = new List<ISound2ColorMapping>{ 
+            Sound2ColorMappings = new List<ISound2ColorMapping>{ 
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(0,0,255),
                     IntensityMultiplier = 1,
-                    SoundFrequencyMidpoint = 280,
-                    SoundFrequencySpanWidth = 300},
+                    SoundFrequencyMidpoint = new Frequency(280),
+                    SoundFrequencySpanWidth = new Frequency(300)},
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(0,255,0),
                     IntensityMultiplier = 0.9,
-                    SoundFrequencyMidpoint = 600,
-                    SoundFrequencySpanWidth = 500},
+                    SoundFrequencyMidpoint = new Frequency(600),
+                    SoundFrequencySpanWidth = new Frequency(500)},
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(255,0,0),
                     IntensityMultiplier = 0.8,
-                    SoundFrequencyMidpoint = 1600,
-                    SoundFrequencySpanWidth = 1000}};
+                    SoundFrequencyMidpoint = new Frequency(1600),
+                    SoundFrequencySpanWidth = new Frequency(1000)}};
 
-            Amplitudes.PropertyChanged += HandleAmplitudesChanged;
+            _samples.PropertyChanged += HandleAmplitudesChanged;
             _samplingRate.PropertyChanged += HandleSamplingRateChanged;
         }
 
@@ -69,84 +67,35 @@ namespace SoundToColorApplication
             Update();
         }
 
-        public void UpdateSound2ColorMappingLines()
-        {
-            ColorMappingPaths = new List<Path>();
-            foreach (var mapping in _sound2ColorMappings)
-            {
-                var pathSegments = new List<PathSegment>();
-
-                var firstPoint = new Point();
-                for (int x = 0; x < 200; x++)
-                {
-                    var freq = x * 20;
-                    var point = new Point(Frequency2Pixel(freq), mapping.GetIntensityFromSoundFrequency(freq)*50 + translation * 2);
-
-                    if (x == 0)
-                    {
-                        firstPoint = point;
-                    }
-                    else
-                    {
-                        pathSegments.Add(new LineSegment(point,true));
-                    }
-                }
-                PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoint, pathSegments, false) });
-
-                ColorMappingPaths.Add(new Path() { Data = pg, Stroke = new SolidColorBrush(mapping.Color), StrokeThickness = 2 });
-            }
-        }
-
         private void Update()
         {
-            var amps = Amplitudes.Value;
-
             double[] y2, idx2Freq;
 
-            FrequencyAnalyzer.Analyze(amps, _samplingRate.Value, out y2, out idx2Freq);
-            var y = amps;
-
-            List<PathSegment> ampList = new List<PathSegment>();
-            List<PathSegment> freqList = new List<PathSegment>();
-
-            Point firstPointAmp = new Point();
-            Point firstPointFreq = new Point();
-
+            FrequencyAnalyzer.Analyze(_samples.Value, _samplingRate.Value, out y2, out idx2Freq);
 
             var red = 0.0;
             var green = 0.0;
             var blue = 0.0;
 
-            for (int x = 0; x < y.Length; x++)
+            var amplitudes = new List<KeyValuePair<int,double>>();
+            var frequencies = new List<KeyValuePair<Frequency,double>>();
+
+            for (int x = 0; x < _samples.Value.Length; x++)
             {
                 var r = Red(idx2Freq[x]);
                 var g = Green(idx2Freq[x]);
                 var b = Blue(idx2Freq[x]);
 
-                if (x < y.Length / 2)
+                if (x < _samples.Value.Length / 2)
                 {
                     red += y2[x] * r * 0.002;
                     blue += y2[x] * b * 0.002;
                     green += y2[x] * g * 0.002;
                 }
 
-                var ampPoint = new Point(4 * x, y[x] * factor + translation);
-                var freqPoint = new Point(Frequency2Pixel(idx2Freq[x]), -y2[x] * factor + translation * 2);
-
-                if (x == 0)
-                {
-                    firstPointAmp = ampPoint;
-                    firstPointFreq = freqPoint;
-                }
-                else
-                {
-                    ampList.Add(new LineSegment(ampPoint, true));
-
-                    if (x <= y.Length / 2)
-                    {
-                        freqList.Add(new LineSegment(freqPoint, true));
-                    }
-                }
+                amplitudes.Add(new KeyValuePair<int,double>(x, _samples.Value[x]));
+                if (x <= _samples.Value.Length / 2)
+                    frequencies.Add(new KeyValuePair<Frequency, double>(new Frequency(idx2Freq[x]), y2[x]));
             }
 
             if (_oldColor == null)
@@ -159,24 +108,9 @@ namespace SoundToColorApplication
 
             _oldColor = _color.Value;
 
-            var firstPoints = new[] { firstPointAmp, firstPointFreq};
-            var segmentLists = new[] { ampList, freqList };
-            var color = new[] { Brushes.Black, Brushes.Black};
+            _amplitudes.Value = amplitudes; 
+            _frequencies.Value = frequencies;
 
-            var paths = new List<Path>();
-
-            for (int i = 0; i < firstPoints.Length; i++)
-            {
-                PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoints[i], segmentLists[i], false) });
-                paths.Add(new Path() { Data = pg, Stroke = color[i], StrokeThickness = 2 });
-            }
-
-            Paths = paths;
-        }
-
-        private double Frequency2Pixel(double freq)
-        {
-            return freq / 2;
         }
 
         private double Blue(double freq)

@@ -4,22 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Utilities;
 
 namespace SoundToColorApplication
 {
-    interface ISound2ColorMapping
+    public interface ISound2ColorMapping
     {
         Color Color {get;set;}
 
         double IntensityMultiplier { get; set; }
 
-        double GetIntensityFromSoundFrequency(double freq);
+        double GetIntensityFromSoundFrequency(Frequency freq);
     }
 
-    interface ILinearSound2ColorMapping : ISound2ColorMapping
+    public interface ILinearSound2ColorMapping : ISound2ColorMapping
     {
-        double SoundFrequencyMidpoint { get; set; }
-        double SoundFrequencySpanWidth { get; set; }
+        Frequency SoundFrequencyMidpoint { get; set; }
+        Frequency SoundFrequencySpanWidth { get; set; }
     }
 
     public abstract class Sound2ColorMapping : ISound2ColorMapping
@@ -39,18 +40,18 @@ namespace SoundToColorApplication
             } 
         }
 
-        public abstract double GetIntensityFromSoundFrequency(double freq);
+        public abstract double GetIntensityFromSoundFrequency(Frequency freq);
     }
 
     public class LinearSound2ColorMapping : Sound2ColorMapping, ILinearSound2ColorMapping
     {
-        public double SoundFrequencyMidpoint { get; set; }
+        public Frequency SoundFrequencyMidpoint { get; set; }
 
-        public double SoundFrequencySpanWidth { get; set; }
+        public Frequency SoundFrequencySpanWidth { get; set; }
 
-        public override double GetIntensityFromSoundFrequency(double freq)
+        public override double GetIntensityFromSoundFrequency(Frequency freq)
         {
-            var val = Math.Max(1 - Math.Abs((freq - SoundFrequencyMidpoint) / SoundFrequencySpanWidth), 0);
+            var val = Math.Max(1 - Math.Abs((freq.Value - SoundFrequencyMidpoint.Value) / SoundFrequencySpanWidth.Value), 0);
             return val*IntensityMultiplier;
         }
     }
