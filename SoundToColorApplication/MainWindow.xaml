@@ -4,6 +4,14 @@
         xmlns:userControls="clr-namespace:SoundToColorApplication"
         Title="MainWindow" Height="350" Width="525" WindowState="Maximized"
         x:Name="ThisControl">
-    <Grid x:Name="MainGrid" />
-
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="MainGrid" Grid.ColumnSpan="2"/>
+        <StackPanel Orientation="Vertical" Background="Transparent">
+            <Button x:Name="DeviceButton" Width="200" Height="30"/>
+        </StackPanel>
+    </Grid>
 </Window>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NAudio.Wave;
+using NAudio;
 
 namespace SoundToColorApplication
 {
@@ -30,6 +31,17 @@ namespace SoundToColorApplication
             _player.Play();
         }
 
+        public Dictionary<WaveInCapabilities, int> GetAvailableDevices()
+        {
+            var dictionary = new Dictionary<WaveInCapabilities, int>();
+            for (int device = 0; device < WaveIn.DeviceCount; device++)
+            {
+                var deviceInfo = WaveIn.GetCapabilities(device);
+                dictionary.Add(deviceInfo, device);
+            }
+            return dictionary;
+        }
+
         public void StopPlayback()
         {
             _player.Stop();
@@ -39,12 +51,13 @@ namespace SoundToColorApplication
             _player = null;
         }
 
-        public void StartRecording()
+        public void StartRecording(int device = 0)
         {
             if (_recorder != null)
                 throw new InvalidOperationException("Can't begin listening when already listening");
 
             _recorder = new WaveIn();
+            _recorder.DeviceNumber = device;
             _recorder.BufferMilliseconds = 50;
             _recorder.DataAvailable += HandleDataAvailable;
             
@@ -59,7 +72,11 @@ namespace SoundToColorApplication
         {
             if (_recorder != null)
             {
-                _recorder.StopRecording();
+                try
+                {
+                    _recorder.StopRecording();
+                }
+                catch(MmException){ }
                 _recorder.DataAvailable -= HandleDataAvailable;
                 _recorder = null;
                 SamplingRate = -1;
