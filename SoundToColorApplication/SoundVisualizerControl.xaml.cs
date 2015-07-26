@@ -38,10 +38,12 @@ namespace SoundToColorApplication
 
         private void CreateFrequencyLabels()
         {
-            for (int freq = 0; freq <= 8000; freq += 100)
+            var a = startingFreq;
+            for (double freq = 0; freq <= 3800; freq += a)
             {
+                a *= 1.2;
                 var x = Frequency2Pixel(new Frequency(freq));
-                var label = new Label { Content = freq, HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(0)};
+                var label = new Label { Content = String.Format("{0:0}",freq) , HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(0)};
 
                 label.RenderTransform = new TranslateTransform(x,0);
                 FrequencyLabelsGrid.Children.Add(label);
@@ -92,6 +94,9 @@ namespace SoundToColorApplication
             var firstPoint = new Point();
             foreach(var kvp in _viewModel.Frequencies.Value) 
             {
+                if (kvp.Key.Value < startingFreq)
+                    continue;
+
                 var point = new Point(Frequency2Pixel(kvp.Key), -kvp.Value*0.002);
 
                 if (firstPoint == null)
@@ -129,9 +134,13 @@ namespace SoundToColorApplication
             }
         }
 
+        private const double scaling = 400;
+        private const double startingFreq = 80;
+        private double logAdjust = Math.Log(startingFreq + 1) * scaling;
+
         private double Frequency2Pixel(Frequency freq)
         {
-            return freq.Value ;
+            return Math.Log(freq.Value+1)*scaling -logAdjust;
         }
     }
 }
