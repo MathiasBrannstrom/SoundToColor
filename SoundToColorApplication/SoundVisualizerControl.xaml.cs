@@ -33,6 +33,19 @@ namespace SoundToColorApplication
             _viewModel.Color.PropertyChanged += HandleColorChanged;
             _viewModel.AverageIntensity.PropertyChanged += HandleAverageIntensityChanged;
 
+            CreateFrequencyLabels();
+        }
+
+        private void CreateFrequencyLabels()
+        {
+            for (int freq = 0; freq <= 8000; freq += 100)
+            {
+                var x = Frequency2Pixel(new Frequency(freq));
+                var label = new Label { Content = freq, HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(0)};
+
+                label.RenderTransform = new TranslateTransform(x,0);
+                FrequencyLabelsGrid.Children.Add(label);
+            }
         }
 
         private void HandleAverageIntensityChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -79,7 +92,7 @@ namespace SoundToColorApplication
             var firstPoint = new Point();
             foreach(var kvp in _viewModel.Frequencies.Value) 
             {
-                var point = new Point(Frequency2Pixel(kvp.Key), -kvp.Value*0.02);
+                var point = new Point(Frequency2Pixel(kvp.Key), -kvp.Value*0.002);
 
                 if (firstPoint == null)
                     firstPoint = point;
@@ -90,19 +103,6 @@ namespace SoundToColorApplication
             PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoint, pathSegments, false) });
 
             FrequencyCurve.Child = new Path() { Data = pg, Stroke = Brushes.Black, StrokeThickness = 2, VerticalAlignment= VerticalAlignment.Bottom };
-        }
-
-        private void UpdatePaths()
-        {
-            //var paths = new List<Path>();
-
-            //for (int i = 0; i < firstPoints.Length; i++)
-            //{
-            //    PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoints[i], segmentLists[i], false) });
-            //    paths.Add(new Path() { Data = pg, Stroke = color[i], StrokeThickness = 2 });
-            //}
-
-            //Paths = paths;
         }
 
         public void UpdateSound2ColorMappingLines(List<ISound2ColorMapping> sound2ColorMappings)
@@ -131,7 +131,7 @@ namespace SoundToColorApplication
 
         private double Frequency2Pixel(Frequency freq)
         {
-            return freq.Value / 2;
+            return freq.Value ;
         }
     }
 }

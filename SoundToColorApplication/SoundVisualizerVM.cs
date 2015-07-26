@@ -28,7 +28,7 @@ namespace SoundToColorApplication
         public IValueHolderReadOnly<double> AverageIntensity { get { return _averageIntensity; } }
         private IValueHolder<double> _averageIntensity;
 
-        public double MinIntensity = 200000;
+        public double MinIntensity = 50000000;
         public double MaxIntensity = 200000000;
         private const double ColorChangingSpeed = 0.1;
 
@@ -45,18 +45,18 @@ namespace SoundToColorApplication
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(0,0,255),
                     IntensityMultiplier = 1,
-                    SoundFrequencyMidpoint = new Frequency(280),
-                    SoundFrequencySpanWidth = new Frequency(300)},
+                    SoundFrequencyMidpoint = new Frequency(400),
+                    SoundFrequencySpanWidth = new Frequency(600)},
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(0,255,0),
                     IntensityMultiplier = 1,
-                    SoundFrequencyMidpoint = new Frequency(600),
-                    SoundFrequencySpanWidth = new Frequency(500)},
+                    SoundFrequencyMidpoint = new Frequency(1200),
+                    SoundFrequencySpanWidth = new Frequency(900)},
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(255,0,0),
                     IntensityMultiplier = 1,
-                    SoundFrequencyMidpoint = new Frequency(1600),
-                    SoundFrequencySpanWidth = new Frequency(1000)}};
+                    SoundFrequencyMidpoint = new Frequency(2400),
+                    SoundFrequencySpanWidth = new Frequency(1200)}};
 
             _samples.PropertyChanged += HandleAmplitudesChanged;
             _samplingRate.PropertyChanged += HandleSamplingRateChanged;
