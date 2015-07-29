@@ -44,19 +44,24 @@ namespace SoundToColorApplication
             Sound2ColorMappings = new List<ISound2ColorMapping>{ 
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(0,0,255),
-                    IntensityMultiplier = 1,
-                    SoundFrequencyMidpoint = new Frequency(400),
-                    SoundFrequencySpanWidth = new Frequency(600)},
+                    IntensityMultiplier = 0.8,
+                    SoundFrequencyMidpoint = new Frequency(250),
+                    SoundFrequencySpanWidth = new Frequency(300)},
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(0,255,0),
-                    IntensityMultiplier = 1,
-                    SoundFrequencyMidpoint = new Frequency(1200),
-                    SoundFrequencySpanWidth = new Frequency(900)},
+                    IntensityMultiplier = 1.1,
+                    SoundFrequencyMidpoint = new Frequency(700),
+                    SoundFrequencySpanWidth = new Frequency(450)},
                 new LinearSound2ColorMapping{
                     Color = System.Windows.Media.Color.FromRgb(255,0,0),
-                    IntensityMultiplier = 1,
-                    SoundFrequencyMidpoint = new Frequency(2400),
-                    SoundFrequencySpanWidth = new Frequency(1200)}};
+                    IntensityMultiplier = 0.9,
+                    SoundFrequencyMidpoint = new Frequency(1500),
+                    SoundFrequencySpanWidth = new Frequency(1000)},
+            new LinearSound2ColorMapping{
+                    Color = System.Windows.Media.Color.FromRgb(255,0,0),
+                    IntensityMultiplier = 0.4,
+                    SoundFrequencyMidpoint = new Frequency(2600),
+                    SoundFrequencySpanWidth = new Frequency(1400)}};
 
             _samples.PropertyChanged += HandleAmplitudesChanged;
             _samplingRate.PropertyChanged += HandleSamplingRateChanged;
@@ -110,10 +115,35 @@ namespace SoundToColorApplication
                 blueIntensity += aggregatedColorIntensities[i] * Sound2ColorMappings[i].Color.B;
             }
 
+            double redPart, greenPart, bluePart;
+
+            GetColorFromIntensities(redIntensity, greenIntensity, blueIntensity,
+                out redPart, out greenPart, out bluePart);
+
+            if (_color.Value == null)
+                _color.Value = System.Windows.Media.Color.FromRgb(
+                    (byte)(255 * redPart),
+                    (byte)(255 * greenPart),
+                    (byte)(255 * bluePart));
+            else
+                _color.Value = System.Windows.Media.Color.FromRgb(
+                    (byte)((255 * redPart) * ColorChangingSpeed + _color.Value.R * (1 - ColorChangingSpeed)),
+                    (byte)((255 * greenPart) * ColorChangingSpeed + _color.Value.G * (1 - ColorChangingSpeed)),
+                    (byte)((255 * bluePart) * ColorChangingSpeed + _color.Value.B * (1 - ColorChangingSpeed)));
+
+            _amplitudes.Value = amplitudes; 
+            _frequencies.Value = frequencies;
+        }
+
+        // Update this function later so that it doesn't depend on and updates local averageintensities, it
+        // should basically be a static function.
+        private void GetColorFromIntensities(double redIntensity, double greenIntensity, double blueIntensity,
+        out double redPart, out double greenPart, out double bluePart)
+        {
             var totalIntensity = redIntensity + blueIntensity + greenIntensity;
-            var redPart = totalIntensity == 0 ? 0 : redIntensity / totalIntensity;
-            var bluePart = totalIntensity == 0 ? 0 : blueIntensity / totalIntensity;
-            var greenPart = totalIntensity == 0 ? 0 : greenIntensity / totalIntensity;
+            redPart = totalIntensity == 0 ? 0 : redIntensity / totalIntensity;
+            bluePart = totalIntensity == 0 ? 0 : blueIntensity / totalIntensity;
+            greenPart = totalIntensity == 0 ? 0 : greenIntensity / totalIntensity;
 
             var newAverageIntensity = _averageIntensity.Value * (1 - ColorChangingSpeed) + totalIntensity * ColorChangingSpeed;
             _averageIntensity.Value = Math.Min(Math.Max(newAverageIntensity, MinIntensity), MaxIntensity);
@@ -126,7 +156,7 @@ namespace SoundToColorApplication
                 }
                 else
                 {
-                    d = -Math.Sqrt(Math.Abs(d - 1.0 / 3 ) * 3.0) * 1.0 / 3 + 1.0 / 3;
+                    d = -Math.Sqrt(Math.Abs(d - 1.0 / 3) * 3.0) * 1.0 / 3 + 1.0 / 3;
                 }
                 return d;
             };
@@ -143,28 +173,11 @@ namespace SoundToColorApplication
             bluePart = intensify(bluePart);
             greenPart = intensify(greenPart);
 
-            //Consider intensifying after capping off at 255 after scaling to allow for white colors
-            //when reaching max intensity (could be nice when introducing adapting intensity level)
-
             var normalizingFactor = (redPart + bluePart + greenPart) / scaling;
 
             redPart /= normalizingFactor;
             bluePart /= normalizingFactor;
             greenPart /= normalizingFactor;
-
-            if (_color.Value == null)
-                _color.Value = System.Windows.Media.Color.FromRgb(
-                    (byte)(255 * redPart),
-                    (byte)(255 * greenPart),
-                    (byte)(255 * bluePart));
-            else
-                _color.Value = System.Windows.Media.Color.FromRgb(
-                    (byte)((255 * redPart) * ColorChangingSpeed + _color.Value.R * (1 - ColorChangingSpeed)),
-                    (byte)((255 * greenPart) * ColorChangingSpeed + _color.Value.G * (1 - ColorChangingSpeed)),
-                    (byte)((255 * bluePart) * ColorChangingSpeed + _color.Value.B * (1 - ColorChangingSpeed)));
-
-            _amplitudes.Value = amplitudes; 
-            _frequencies.Value = frequencies;
         }
     }
 }

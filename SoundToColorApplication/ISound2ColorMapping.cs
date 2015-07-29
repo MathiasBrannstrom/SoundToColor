@@ -43,6 +43,11 @@ namespace SoundToColorApplication
         public abstract double GetIntensityFromSoundFrequency(Frequency freq);
     }
 
+    /// <summary>
+    /// This Sound2Color mapping gives high intensities for the color at a 
+    /// given midpoint and then linearly drops in both directions based on
+    /// a given width.
+    /// </summary>
     public class LinearSound2ColorMapping : Sound2ColorMapping, ILinearSound2ColorMapping
     {
         public Frequency SoundFrequencyMidpoint { get; set; }

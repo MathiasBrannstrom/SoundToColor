@@ -126,7 +126,7 @@ namespace SoundToColorApplication
                     if (x == 0)
                         firstPoint = point;
                     else
-                        pathSegments.Add(new LineSegment(point, true));
+                        pathSegments.Add(new LineSegment(point, point.Y < 0));
                 }
                 PathGeometry pg = new PathGeometry(new[] { new PathFigure(firstPoint, pathSegments, false) });
 
