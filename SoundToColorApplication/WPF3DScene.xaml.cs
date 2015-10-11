@@ -21,8 +21,8 @@ namespace SoundToColorApplication
     /// </summary>
     public partial class WPF3DScene : UserControl
     {
-        private double _azimuthAngle = 1 * Math.PI;
-        private double _polarAngle = 0 * Math.PI / 2;
+        private double _azimuthAngle = 0.9 * Math.PI;
+        private double _polarAngle = 0.1 * Math.PI / 2;
         private double _radialDistance = 4;
 
         //private Point3D _rotationCenter = new Point3D(0, 0, 0);

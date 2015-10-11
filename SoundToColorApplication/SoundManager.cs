@@ -51,7 +51,7 @@ namespace SoundToColorApplication
             _player = null;
         }
 
-        public void StartRecording(int device = 0, int bufferMilliseconds = 50)
+        public bool StartRecording(int device = 0, int bufferMilliseconds = 50)
         {
             if (_recorder != null)
                 throw new InvalidOperationException("Can't begin listening when already listening");
@@ -65,7 +65,17 @@ namespace SoundToColorApplication
 
             BytesPerSample = _recorder.WaveFormat.BitsPerSample / 8;
 
-            _recorder.StartRecording();
+            try
+            {
+                _recorder.StartRecording();
+            }
+            catch(MmException)
+            {
+                StopRecording();
+                return false;
+            }
+
+            return true;
         }
 
         public void StopRecording()
@@ -74,10 +84,11 @@ namespace SoundToColorApplication
             {
                 try
                 {
+                    _recorder.DataAvailable -= HandleDataAvailable;
                     _recorder.StopRecording();
                 }
-                catch(MmException){ }
-                _recorder.DataAvailable -= HandleDataAvailable;
+                catch(MmException){}
+                _recorder.Dispose();
                 _recorder = null;
                 SamplingRate = -1;
                 BytesPerSample = -1;
