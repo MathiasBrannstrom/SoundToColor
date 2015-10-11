@@ -83,6 +83,9 @@
       <DependentUpon>SoundVisualizerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="SoundVisualizerVM.cs" />
+    <Compile Include="WPF3DScene.xaml.cs">
+      <DependentUpon>WPF3DScene.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -96,6 +99,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="SoundVisualizerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF3DScene.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

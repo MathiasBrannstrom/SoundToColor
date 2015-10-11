@@ -10,6 +10,17 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
+        <Grid Grid.RowSpan="2">
+            <Grid.Background>
+                <RadialGradientBrush SpreadMethod="Pad">
+                    <RadialGradientBrush.GradientStops>
+                        <GradientStop Color="Transparent" Offset="0" />
+                        <GradientStop Color="#20000000" Offset="2" />
+                    </RadialGradientBrush.GradientStops>
+                </RadialGradientBrush>
+            </Grid.Background>
+        </Grid>
+        
         <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#08FFFFFF"/>
         <Grid Grid.Row="1" Margin="20" Background="#08FFFFFF">
             <Grid.RowDefinitions>
