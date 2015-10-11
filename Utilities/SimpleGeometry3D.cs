@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -83,6 +84,36 @@ namespace Utilities
             sphere.TriangleIndices = facets;
 
             return sphere;
+        }
+
+        public static MeshGeometry3D CreateRectangle(double height, double width)
+        {
+            var vertices = new Point3DCollection();
+            var normals = new Vector3DCollection();
+            var facets = new Int32Collection();
+            var textureCoords = new PointCollection();
+            vertices.Add(new Point3D(-width / 2, -height / 2, 0));
+            vertices.Add(new Point3D(-width / 2, height / 2, 0));
+            vertices.Add(new Point3D(width / 2, -height / 2, 0));
+            vertices.Add(new Point3D(width / 2, height / 2, 0));
+
+            normals.Add(new Vector3D(0, 0, 1));
+            normals.Add(new Vector3D(0, 0, 1));
+            normals.Add(new Vector3D(0, 0, 1));
+            normals.Add(new Vector3D(0, 0, 1));
+
+            textureCoords.Add(new Point(0,0));
+            textureCoords.Add(new Point(0, 1));
+            textureCoords.Add(new Point(1,0));
+            textureCoords.Add(new Point(1,1));
+
+            facets.Add(0); facets.Add(1); facets.Add(2); facets.Add(3); facets.Add(2); facets.Add(1);
+            var rectangle = new MeshGeometry3D();
+            rectangle.Positions = vertices;
+            rectangle.Normals = normals;
+            rectangle.TriangleIndices = facets;
+            rectangle.TextureCoordinates = textureCoords;
+            return rectangle;
         }
     }
 }

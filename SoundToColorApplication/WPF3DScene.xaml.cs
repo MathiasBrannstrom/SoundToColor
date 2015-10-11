@@ -21,9 +21,9 @@ namespace SoundToColorApplication
     /// </summary>
     public partial class WPF3DScene : UserControl
     {
-        private double _azimuthAngle = 1 * Math.PI / 4;
-        private double _polarAngle = 1 * Math.PI / 6;
-        private double _radialDistance = 4;
+        private double _azimuthAngle = 0 * Math.PI / 4;
+        private double _polarAngle = -1 * Math.PI / 2;
+        private double _radialDistance = 600;
 
         public WPF3DScene()
         {
@@ -51,6 +51,11 @@ namespace SoundToColorApplication
         public void AddModel(GeometryModel3D model)
         {
             Models.Children.Add(model);
+        }
+
+        public void Add2DUI(Viewport2DVisual3D viewport2D)
+        {
+            Viewport.Children.Add(viewport2D);
         }
 
         private bool _dragging = false;

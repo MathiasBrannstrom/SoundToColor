@@ -13,12 +13,13 @@
             </GradientStopCollection>
         </RadialGradientBrush>
     </UserControl.Resources>
-    <Grid  Background="{StaticResource BackgroundBrush}" 
+    <!---->
+    <Grid Background="{StaticResource BackgroundBrush}"
            MouseDown="HandleMouseDown" MouseUp="HandleMouseUp" MouseMove="HandleMouseMove">
-        <Viewport3D>
+        <Viewport3D x:Name="Viewport">
             <Viewport3D.Camera>
                 <PerspectiveCamera x:Name="Camera" FieldOfView="70"
-                                   NearPlaneDistance="0.1" FarPlaneDistance="20"/>
+                                   NearPlaneDistance="0.1" FarPlaneDistance="700"/>
             </Viewport3D.Camera>
             <ModelVisual3D>
                 <ModelVisual3D.Content>

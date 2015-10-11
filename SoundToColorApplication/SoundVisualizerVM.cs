@@ -28,6 +28,10 @@ namespace SoundToColorApplication
         public IValueHolderReadOnly<double> AverageIntensity { get { return _averageIntensity; } }
         private IValueHolder<double> _averageIntensity;
 
+        public IValueHolderReadOnly<double> AverageAmplitudeFromLastSampling { get { return _averageAmplitudeFromLastSampling; } }
+        private IValueHolder<double> _averageAmplitudeFromLastSampling;
+
+
         public double MinIntensity = 10000000;
         public double MaxIntensity = 200000000;
         private const double ColorChangingSpeed = 0.1;
@@ -40,6 +44,7 @@ namespace SoundToColorApplication
             _frequencies = new ValueHolder<IReadOnlyList<KeyValuePair<Frequency, double>>>();
             _amplitudes = new ValueHolder<IReadOnlyList<KeyValuePair<int, double>>>();
             _averageIntensity = new ValueHolder<double>();
+            _averageAmplitudeFromLastSampling = new ValueHolder<double>();
 
             Sound2ColorMappings = new List<ISound2ColorMapping>{ 
                 new LinearSound2ColorMapping{
@@ -131,7 +136,8 @@ namespace SoundToColorApplication
                     (byte)((255 * greenPart) * ColorChangingSpeed + _color.Value.G * (1 - ColorChangingSpeed)),
                     (byte)((255 * bluePart) * ColorChangingSpeed + _color.Value.B * (1 - ColorChangingSpeed)));
 
-            _amplitudes.Value = amplitudes; 
+            _amplitudes.Value = amplitudes;
+            _averageAmplitudeFromLastSampling.Value = _samples.Value.Select(s => Math.Abs((double)s)).Average();
             _frequencies.Value = frequencies;
         }
 

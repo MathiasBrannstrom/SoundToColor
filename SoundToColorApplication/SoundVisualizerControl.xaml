@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vms="clr-namespace:SoundToColorApplication"
              mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
+    <Grid ClipToBounds="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="2*" />
@@ -21,8 +21,8 @@
             </Grid.Background>
         </Grid>
         
-        <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#08FFFFFF"/>
-        <Grid Grid.Row="1" Margin="20" Background="#08FFFFFF">
+        <Border x:Name="AmplitudeCurve" Grid.Row="0" Margin="20" Background="#08FFFFFF" Height="100"/>
+        <Grid Grid.Row="1" Margin="20" Background="#08FFFFFF" Height="300">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />

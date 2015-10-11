@@ -51,14 +51,14 @@ namespace SoundToColorApplication
             _player = null;
         }
 
-        public void StartRecording(int device = 0)
+        public void StartRecording(int device = 0, int bufferMilliseconds = 50)
         {
             if (_recorder != null)
                 throw new InvalidOperationException("Can't begin listening when already listening");
 
             _recorder = new WaveIn();
             _recorder.DeviceNumber = device;
-            _recorder.BufferMilliseconds = 50;
+            _recorder.BufferMilliseconds = bufferMilliseconds;
             _recorder.DataAvailable += HandleDataAvailable;
             
             SamplingRate = _recorder.WaveFormat.SampleRate;

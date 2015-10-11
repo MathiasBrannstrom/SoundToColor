@@ -27,29 +27,53 @@ namespace SoundToColorApplication
             _samples = new ValueHolder<short[]>();
             _samplingRate = new ValueHolder<int>();
 
-            _soundManager = new SoundManager();
+            _soundManager = new SoundManager(); 
             _soundManager.NewSamples += HandleNewSamples;
-            _soundManager.StartRecording();
+            _soundManager.StartRecording(0, 30);
 
             _samplingRate.Value = _soundManager.SamplingRate;
 
             _soundVisualizerVM = new SoundVisualizerVM(_samples, _samplingRate);
             
             _soundVisualizer = new SoundVisualizerControl(_soundVisualizerVM);
-
             //MainGrid.Children.Add(_soundVisualizer);
             
             _scene = new WPF3DScene();
             MainGrid.Children.Add(_scene);
-            _scene.AddModel(Create3DModel());
-            
+            _model = Create3DModel();
+            _scene.AddModel(_model);
+            AddUIP3DPlane();
+            _soundVisualizerVM.AverageAmplitudeFromLastSampling.PropertyChanged += HandleAverageAmplitudeChanged;
+
             DeviceButton.Click += DeviceButton_Click;
             DeviceButton.Content = _soundManager.GetAvailableDevices().Keys.First().ProductName;
         }
 
+        private void AddUIP3DPlane()
+        {
+            var rectangle = SimpleGeometry3D.CreateRectangle(400, 600);
+            var viewport2D = new Viewport2DVisual3D();
+            viewport2D.Geometry = rectangle;
+            viewport2D.Visual = _soundVisualizer;
+            var material = new DiffuseMaterial { Brush = Brushes.Black };
+            Viewport2DVisual3D.SetIsVisualHostMaterial(material, true);
+            viewport2D.Material = material;
+            //var brush = new VisualBrush { AutoLayoutContent = true };
+            //brush.Visual = _soundVisualizer;
+            //geometry.Material = new DiffuseMaterial { Brush = brush };
+            //geometry.BackMaterial = new DiffuseMaterial { Brush = Brushes.Gray };
+
+            _scene.Add2DUI(viewport2D);
+        }
+
+        private void HandleAverageAmplitudeChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            _model.Transform = new TranslateTransform3D(0, 0, (Math.Pow(_soundVisualizerVM.AverageAmplitudeFromLastSampling.Value, 0.7)-20) / 400 - 0.25);
+        }
+
         private GeometryModel3D Create3DModel()
         {
-            var mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 0.5, 16, 16);
+            var mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 40, 16, 16);
 
             var geometry = new GeometryModel3D();
             geometry.Geometry = mesh;
@@ -60,6 +84,7 @@ namespace SoundToColorApplication
 
         int c = 0;
         private WPF3DScene _scene;
+        private GeometryModel3D _model;
         private void DeviceButton_Click(object sender, RoutedEventArgs e)
         {
             var devices = _soundManager.GetAvailableDevices();
