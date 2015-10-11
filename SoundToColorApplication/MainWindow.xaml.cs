@@ -51,13 +51,14 @@ namespace SoundToColorApplication
 
         private void AddUIP3DPlane()
         {
-            var rectangle = SimpleGeometry3D.CreateRectangle(400, 600);
+            var rectangle = SimpleGeometry3D.CreateRectangle(2, 3);
             var viewport2D = new Viewport2DVisual3D();
             viewport2D.Geometry = rectangle;
             viewport2D.Visual = _soundVisualizer;
             var material = new DiffuseMaterial { Brush = Brushes.Black };
             Viewport2DVisual3D.SetIsVisualHostMaterial(material, true);
             viewport2D.Material = material;
+            viewport2D.Transform = new TranslateTransform3D(0, -0.5, 0);
             //var brush = new VisualBrush { AutoLayoutContent = true };
             //brush.Visual = _soundVisualizer;
             //geometry.Material = new DiffuseMaterial { Brush = brush };
@@ -73,7 +74,7 @@ namespace SoundToColorApplication
 
         private GeometryModel3D Create3DModel()
         {
-            var mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 40, 16, 16);
+            var mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 0.2, 16, 16);
 
             var geometry = new GeometryModel3D();
             geometry.Geometry = mesh;

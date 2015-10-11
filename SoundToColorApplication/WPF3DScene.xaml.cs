@@ -21,18 +21,22 @@ namespace SoundToColorApplication
     /// </summary>
     public partial class WPF3DScene : UserControl
     {
-        private double _azimuthAngle = 0 * Math.PI / 4;
-        private double _polarAngle = -1 * Math.PI / 2;
-        private double _radialDistance = 600;
+        private double _azimuthAngle = 1 * Math.PI;
+        private double _polarAngle = 0 * Math.PI / 2;
+        private double _radialDistance = 4;
+
+        //private Point3D _rotationCenter = new Point3D(0, 0, 0);
+        //private double _fixedDistance = 5;
+        //private RotateTransform3D _rotationTransform;
 
         public WPF3DScene()
         {
             InitializeComponent();
             
-            UpdateCamera();
+            InitializeCamera();
         }
 
-        public void UpdateCamera()
+        public void InitializeCamera()
         {
 
             var xCoord = Math.Sin(_azimuthAngle) * Math.Cos(_polarAngle) * _radialDistance;
@@ -44,8 +48,12 @@ namespace SoundToColorApplication
             var zCoord2 = Math.Cos(_polarAngle);
 
             Camera.Position = new Point3D(xCoord, yCoord, zCoord);
-            Camera.LookDirection = -new Vector3D(xCoord, yCoord, zCoord);
+            Camera.LookDirection = - new Vector3D(xCoord, yCoord, zCoord);
             Camera.UpDirection = new Vector3D(xCoord2, yCoord2, zCoord2);
+
+            //_rotationTransform = new RotateTransform3D(new QuaternionRotation3D(new Quaternion()))
+
+            //Camera.Transform = _rotationTransform;
         }
 
         public void AddModel(GeometryModel3D model)
@@ -81,10 +89,14 @@ namespace SoundToColorApplication
             var displacement = newPoint - _latestMousePoint;
             _latestMousePoint = newPoint;
 
-            _polarAngle = (_polarAngle + displacement.Y/50) % (2 * Math.PI);
-            _azimuthAngle = (_azimuthAngle - displacement.X/50) % (2 * Math.PI);
+            //var cameraDisplacement = Camera.Position - _rotationCenter;
 
-            UpdateCamera();
+            //_rotationTransform
+
+            _polarAngle = (_polarAngle + displacement.Y / 50) % (2 * Math.PI);
+            _azimuthAngle = (_azimuthAngle - displacement.X / 50) % (2 * Math.PI);
+
+            InitializeCamera();
         }
     }
 }

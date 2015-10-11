@@ -92,20 +92,20 @@ namespace Utilities
             var normals = new Vector3DCollection();
             var facets = new Int32Collection();
             var textureCoords = new PointCollection();
-            vertices.Add(new Point3D(-width / 2, -height / 2, 0));
-            vertices.Add(new Point3D(-width / 2, height / 2, 0));
-            vertices.Add(new Point3D(width / 2, -height / 2, 0));
-            vertices.Add(new Point3D(width / 2, height / 2, 0));
+            vertices.Add(new Point3D(-width / 2, 0, -height / 2));
+            vertices.Add(new Point3D(-width / 2, 0, height / 2));
+            vertices.Add(new Point3D(width / 2, 0, -height / 2));
+            vertices.Add(new Point3D(width / 2, 0, height / 2));
 
-            normals.Add(new Vector3D(0, 0, 1));
-            normals.Add(new Vector3D(0, 0, 1));
-            normals.Add(new Vector3D(0, 0, 1));
-            normals.Add(new Vector3D(0, 0, 1));
+            normals.Add(new Vector3D(0, -1, 0));
+            normals.Add(new Vector3D(0, -1, 0));
+            normals.Add(new Vector3D(0, -1, 0));
+            normals.Add(new Vector3D(0, -1, 0));
 
-            textureCoords.Add(new Point(0,0));
-            textureCoords.Add(new Point(0, 1));
-            textureCoords.Add(new Point(1,0));
             textureCoords.Add(new Point(1,1));
+            textureCoords.Add(new Point(1, 0));
+            textureCoords.Add(new Point(0,1));
+            textureCoords.Add(new Point(0,0));
 
             facets.Add(0); facets.Add(1); facets.Add(2); facets.Add(3); facets.Add(2); facets.Add(1);
             var rectangle = new MeshGeometry3D();
