@@ -17,6 +17,9 @@ namespace SoundToColorApplication
         private SoundVisualizerVM _soundVisualizerVM;
         private SoundVisualizerControl _soundVisualizer;
         private Viewport3D _viewport3D;
+        private Point3DCollection _originalPoints;
+        private WPF3DScene _scene;
+        private GeometryModel3D _model;
 
         private IValueHolder<short[]> _samples;
         private IValueHolder<int> _samplingRate;
@@ -60,33 +63,45 @@ namespace SoundToColorApplication
             Viewport2DVisual3D.SetIsVisualHostMaterial(material, true);
             viewport2D.Material = material;
             viewport2D.Transform = new TranslateTransform3D(0, -0.5, 0);
-            //var brush = new VisualBrush { AutoLayoutContent = true };
-            //brush.Visual = _soundVisualizer;
-            //geometry.Material = new DiffuseMaterial { Brush = brush };
-            //geometry.BackMaterial = new DiffuseMaterial { Brush = Brushes.Gray };
-
             _scene.Add2DUI(viewport2D);
         }
-
         private void HandleAverageAmplitudeChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            _model.Transform = new TranslateTransform3D(0, 0, (Math.Pow(_soundVisualizerVM.AverageAmplitudeFromLastSampling.Value, 0.7)-20) / 100 - 0.7);
+            Random r = new Random(0);
+            var scaledValue = (Math.Pow(_soundVisualizerVM.AverageAmplitudeFromLastSampling.Value, 0.7)-20) / 100;
+            _model.Transform = new TranslateTransform3D(0, 0, scaledValue - 0.7);
+
+            var newPoints = new Point3DCollection();
+
+            for (int i = 0; i < _originalPoints.Count; i++)
+            {
+                if (r.Next(3) == 0)
+                {
+                    newPoints.Add(_originalPoints[i]);
+                }
+                else
+                {
+                    var oldPoint = _originalPoints[i];
+                    var normal = _mesh.Normals[i];
+                    newPoints.Add(oldPoint + normal * (0.16+scaledValue)/20);
+                }
+            }
+
+            _mesh.Positions = newPoints;
         }
 
         private GeometryModel3D Create3DModel()
         {
-            var mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 0.2, 16, 16);
-
+            _mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 0.2, 16, 16);
+            _originalPoints = _mesh.Positions;
             var geometry = new GeometryModel3D();
-            geometry.Geometry = mesh;
-            geometry.Material = new DiffuseMaterial { Brush = Brushes.SaddleBrown};
-            geometry.BackMaterial = new DiffuseMaterial { Brush = Brushes.Gray };
+            geometry.Geometry = _mesh;
+            geometry.Material = new DiffuseMaterial { Brush = Brushes.SaddleBrown, AmbientColor = Color.FromRgb(100,100,100)};
             return geometry;
         }
 
         int c = 0;
-        private WPF3DScene _scene;
-        private GeometryModel3D _model;
+        private MeshGeometry3D _mesh;
         private void DeviceButton_Click(object sender, RoutedEventArgs e)
         {
             var devices = _soundManager.GetAvailableDevices();

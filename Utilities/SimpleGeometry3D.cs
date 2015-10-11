@@ -32,6 +32,7 @@ namespace Utilities
                     var yCoord = Math.Sin(angle) * layerRadius;
                     var cicleVector = new Vector3D(xCoord, yCoord, height);
                     vertices.Add(center + cicleVector);
+                    cicleVector.Normalize();
                     normals.Add(cicleVector);
 
                     if (i != slices - 2)

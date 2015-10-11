@@ -74,7 +74,7 @@ namespace SoundToColorApplication
             var firstPoint = new Point();
             foreach (var kvp in _viewModel.Amplitudes.Value)
             {
-                var point = new Point(((double)kvp.Key)/_viewModel.Amplitudes.Value.Count*AmplitudeCurve.ActualWidth, kvp.Value/300);
+                var point = new Point(((double)kvp.Key)/_viewModel.Amplitudes.Value.Count*AmplitudeCurve.ActualWidth, kvp.Value/100);
 
                 if (firstPoint == null)
                     firstPoint = point;

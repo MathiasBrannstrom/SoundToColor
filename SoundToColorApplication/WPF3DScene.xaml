@@ -16,7 +16,7 @@
     <!---->
     <Grid Background="{StaticResource BackgroundBrush}"
            MouseDown="HandleMouseDown" MouseUp="HandleMouseUp" MouseMove="HandleMouseMove">
-        <Viewport3D x:Name="Viewport">
+        <Viewport3D x:Name="Viewport" IsHitTestVisible="False" ClipToBounds="False">
             <Viewport3D.Camera>
                 <PerspectiveCamera x:Name="Camera" FieldOfView="70"
                                    NearPlaneDistance="0.1" FarPlaneDistance="700"/>
@@ -24,8 +24,10 @@
             <ModelVisual3D>
                 <ModelVisual3D.Content>
                     <Model3DGroup>
-                        <AmbientLight Color="#444444" />
-                        <DirectionalLight Color="White" Direction="1 1 -1" />
+                        <AmbientLight Color="White" />
+                        <DirectionalLight Color="LightGray" Direction="1 -1 -1" />
+                        <DirectionalLight Color="LightGray" Direction="-1 -1 -1" />
+                        
                         <Model3DGroup x:Name="Models" />
                     </Model3DGroup>
                 </ModelVisual3D.Content>
