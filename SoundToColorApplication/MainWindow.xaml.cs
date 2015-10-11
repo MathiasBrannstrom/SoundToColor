@@ -75,7 +75,7 @@ namespace SoundToColorApplication
 
             for (int i = 0; i < _originalPoints.Count; i++)
             {
-                if (r.Next(3) == 0)
+                if (r.Next(20) > (0.16+scaledValue)*10)
                 {
                     newPoints.Add(_originalPoints[i]);
                 }
@@ -83,7 +83,9 @@ namespace SoundToColorApplication
                 {
                     var oldPoint = _originalPoints[i];
                     var normal = _mesh.Normals[i];
-                    newPoints.Add(oldPoint + normal * (0.16+scaledValue)/20);
+                    var mult = r.Next(2) == 0 ? 1 : -1;
+                    var dis = mult * Math.Pow((0.16+scaledValue)/10,2)*2;
+                    newPoints.Add(oldPoint + normal * dis);
                 }
             }
 
@@ -92,11 +94,11 @@ namespace SoundToColorApplication
 
         private GeometryModel3D Create3DModel()
         {
-            _mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 0.2, 16, 16);
+            _mesh = SimpleGeometry3D.CreateSphere(new Point3D(0, 0, 0), 0.2, 32, 32);
             _originalPoints = _mesh.Positions;
             var geometry = new GeometryModel3D();
             geometry.Geometry = _mesh;
-            geometry.Material = new DiffuseMaterial { Brush = Brushes.SaddleBrown, AmbientColor = Color.FromRgb(100,100,100)};
+            geometry.Material = new DiffuseMaterial { Brush = Brushes.SaddleBrown, AmbientColor = Color.FromRgb(150,150,150)};
             return geometry;
         }
 

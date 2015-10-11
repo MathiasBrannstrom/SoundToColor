@@ -26,7 +26,6 @@
                     <Model3DGroup>
                         <AmbientLight Color="White" />
                         <DirectionalLight Color="LightGray" Direction="1 -1 -1" />
-                        <DirectionalLight Color="LightGray" Direction="-1 -1 -1" />
                         
                         <Model3DGroup x:Name="Models" />
                     </Model3DGroup>
