@@ -17,6 +17,9 @@ namespace SoundToColorApplication
         public int SamplingRate { get; private set; }
         public int BytesPerSample { get; private set; }
 
+        public bool IsRecording { get; private set; }
+        public bool IsPlaying { get; private set; }
+
         public void StartPlayBack()
         {
             if (_player != null)
@@ -29,6 +32,7 @@ namespace SoundToColorApplication
 
             _player.Init(_bufferedWaveProvider);
             _player.Play();
+            IsPlaying = true;
         }
 
         public Dictionary<WaveInCapabilities, int> GetAvailableDevices()
@@ -49,6 +53,7 @@ namespace SoundToColorApplication
             _bufferedWaveProvider.ClearBuffer();
             _bufferedWaveProvider = null;
             _player = null;
+            IsPlaying = false;
         }
 
         public bool StartRecording(int device = 0, int bufferMilliseconds = 50)
@@ -75,6 +80,7 @@ namespace SoundToColorApplication
                 return false;
             }
 
+            IsRecording = true;
             return true;
         }
 
@@ -93,6 +99,8 @@ namespace SoundToColorApplication
                 SamplingRate = -1;
                 BytesPerSample = -1;
             }
+
+            IsRecording = false;
         }
 
         private void HandleDataAvailable(object sender, WaveInEventArgs e)

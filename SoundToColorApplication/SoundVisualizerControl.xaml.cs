@@ -97,7 +97,7 @@ namespace SoundToColorApplication
                 if (kvp.Key.Value < startingFreq)
                     continue;
 
-                var point = new Point(Frequency2Pixel(kvp.Key), -kvp.Value*0.002);
+                var point = new Point(Frequency2Pixel(kvp.Key), -kvp.Value*0.02);
 
                 if (firstPoint == null)
                     firstPoint = point;

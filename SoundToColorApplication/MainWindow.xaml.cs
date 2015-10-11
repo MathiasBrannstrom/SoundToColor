@@ -20,6 +20,7 @@ namespace SoundToColorApplication
 
         private IValueHolder<short[]> _samples;
         private IValueHolder<int> _samplingRate;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -69,7 +70,7 @@ namespace SoundToColorApplication
 
         private void HandleAverageAmplitudeChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            _model.Transform = new TranslateTransform3D(0, 0, (Math.Pow(_soundVisualizerVM.AverageAmplitudeFromLastSampling.Value, 0.7)-20) / 400 - 0.25);
+            _model.Transform = new TranslateTransform3D(0, 0, (Math.Pow(_soundVisualizerVM.AverageAmplitudeFromLastSampling.Value, 0.7)-20) / 100 - 0.7);
         }
 
         private GeometryModel3D Create3DModel()
@@ -98,6 +99,21 @@ namespace SoundToColorApplication
         private void HandleNewSamples(short[] newSamples)
         {
             _samples.Value = newSamples;
+        }
+
+        private void HandlePlaybackButtonClicked(object sender, RoutedEventArgs e)
+        {
+            if (PlaybackButton.IsChecked == true)
+            {
+                if (_soundManager.IsPlaying)
+                    _soundManager.StopPlayback();
+
+                _soundManager.StartPlayBack();
+            }
+            else
+            {
+                _soundManager.StopPlayback();
+            }
         }
 
     }

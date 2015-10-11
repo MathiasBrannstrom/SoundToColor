@@ -32,7 +32,7 @@ namespace SoundToColorApplication
         private IValueHolder<double> _averageAmplitudeFromLastSampling;
 
 
-        public double MinIntensity = 10000000;
+        public double MinIntensity = 100000;
         public double MaxIntensity = 200000000;
         private const double ColorChangingSpeed = 0.1;
 
